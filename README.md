@@ -69,9 +69,9 @@ Contributions are welcome! Feel free to open issues or submit pull requests with
 5. Open a pull request
 
 
-## Contact tanumital1212@gmail.com
+## Contact 
 
-If you have any questions or suggestions, feel free to reach out at your.email@example.com.
+If you have any questions or suggestions, feel free to reach out at tanumital1212@gmail.com
 
 ---
 

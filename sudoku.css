@@ -1,126 +1,115 @@
-/* Reset styles */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-  background-color: rgb(218, 196, 218);
+    background-color: rgb(218, 196, 218);
 }
 
 .navbar {
-  font-size: 40px;
-  font-family: sans-serif;
-  background-color: rgb(14, 104, 107);
-  color: white;
-  padding: 10px 20px;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+    font-size: 40px;
+    font-family: sans-serif;
+    background-color: rgb(14, 104, 107);
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .button {
-  margin-right: 10px;
-  display: block;
-  padding: 15px;
-  font-size: 20px;
-  min-width: 100px;
-  cursor: pointer;
-  background-color: rgb(36, 33, 33);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  transition: 0.3s;
+    margin-right: 10px;
+    display: block;
+    padding: 15px;
+    font-size: 20px;
+    min-width: 100px;
+    cursor: pointer;
+    background-color: rgb(36, 33, 33);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: 0.3s;
 }
 
-.button:hover {
-  background-color: white;
-  color: black;
+#buttons {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+#generate-sudoku:hover,
+#solve:hover {
+    background-color: white;
+    color: black;
 }
 
 .dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-  z-index: 1;
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    z-index: 1;
 }
 
 .dropdown-content a {
-  color: black;
-  padding: 12px 10px;
-  text-decoration: none;
-  display: block;
-  text-align: center;
-  border-radius: 6px;
+    float: none;
+    color: black;
+    padding: 12px 10px;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    border-radius: 6px;
 }
 
 .dropdown-content a:hover {
-  background-color: #ddd;
+    background-color: #ddd;
 }
 
 .dropdown:hover .dropdown-content {
-  display: block;
+    display: block;
 }
 
 #container {
-  height: auto;
-  width: 540px;
-  background-color: white;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-  align-content: space-evenly;
-  margin: 0 auto;
+    height: auto;
+    width: 540px;
+    background-color: white;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-content: space-evenly;
+    margin: 0 auto;
 }
 
-#container div {
-  background-color: whitesmoke;
-  height: 60px;
-  width: 60px;
-  box-sizing: border-box;
-  font-family: sans-serif;
-  text-align: center;
-  vertical-align: middle;
-  line-height: 60px;
-  font-size: 30px;
-  color: green;
-  border: 1px solid black;
+.grid-cell {
+    background-color: whitesmoke;
+    height: 60px;
+    width: 60px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 60px;
+    font-size: 30px;
+    color: green;
+    border: 1px solid black;
 }
 
 .lsb {
-  border-left: 4px solid black;
+    border-left: 4px solid black;
 }
 
 .bsb {
-  border-bottom: 4px solid black;
+    border-bottom: 4px solid black;
 }
 
 .rsb {
-  border-right: 4px solid black;
+    border-right: 4px solid black;
 }
 
 .tsb {
-  border-top: 4px solid black;
-}
-
-.ldb {
-  border-left: 0.6px solid black;
-}
-
-.bdb {
-  border-bottom: 0.6px solid black;
-}
-
-.rdb {
-  border-right: 0.6px solid black;
-}
-
-.tdb {
-  border-top: 0.6px solid black;
+    border-top: 4px solid black;
 }

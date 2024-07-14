@@ -1,126 +1,12 @@
-// Constants for difficulty levels
-const difficulties = {
-  
-    emptyPercentage: 35 
-  
-};
+var numSelected = null;
+var tileSelected = null;
+var errors = 0;
+var board = null;
+var solution = null;
 
-// Variables to store current game state
-let board = [];
-let solution = [];
-let numSelected = null;
-let errors = 0;
-
-// Function to initialize the game based on difficulty
-function initializeGame(difficulty) {
-    const { emptyPercentage } = difficulties[difficulty];
-    const { solved, unsolved } = generateRandomSudoku(emptyPercentage);
-
-    board = unsolved;
-    solution = solved;
-    errors = 0;
-
-    // Clear existing board and digits
-    document.getElementById("board").innerHTML = "";
-    document.getElementById("digits").innerHTML = "";
-
-    // Set up Sudoku board
-    for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
-            let tile = document.createElement("div");
-            tile.id = r.toString() + "-" + c.toString();
-            if (board[r][c] != "-") {
-                tile.innerText = board[r][c];
-                tile.classList.add("tile-start");
-            }
-            if (r == 2 || r == 5) {
-                tile.classList.add("horizontal-line");
-            }
-            if (c == 2 || c == 5) {
-                tile.classList.add("vertical-line");
-            }
-            tile.addEventListener("click", selectTile);
-            tile.classList.add("tile");
-            document.getElementById("board").appendChild(tile);
-        }
-    }
-
-    // Set up number selection
-    for (let i = 1; i <= 9; i++) {
-        let number = document.createElement("div");
-        number.id = i.toString();
-        number.innerText = i.toString();
-        number.addEventListener("click", selectNumber);
-        number.classList.add("number");
-        document.getElementById("digits").appendChild(number);
-    }
-
-    // Reset errors count display
-    document.getElementById("errors").innerText = errors;
-}
-
-// Function to handle number selection
-function selectNumber() {
-    if (numSelected != null) {
-        numSelected.classList.remove("number-selected");
-    }
-    numSelected = this;
-    numSelected.classList.add("number-selected");
-}
-
-// Function to handle tile selection and value input
-function selectTile() {
-    if (numSelected) {
-        let coords = this.id.split("-");
-        let r = parseInt(coords[0]);
-        let c = parseInt(coords[1]);
-
-        // Check if the tile is a starting tile (preset value)
-        if (board[r][c] != "-") {
-            return;
-        }
-
-        // Check if input value matches solution
-        if (solution[r][c] == numSelected.id) {
-            this.innerText = numSelected.id;
-            this.classList.add("tile-correct");
-            board[r][c] = numSelected.id;
-
-            // Check if the board is complete
-            if (isBoardComplete()) {
-                alert(`Congratulations! You solved the Sudoku with ${errors} errors.`);
-                initializeGame(); // Reset the game after completion
-            }
-        } else {
-            // Incorrect input handling
-            this.classList.add("tile-incorrect");
-            errors++;
-            document.getElementById("errors").innerText = errors;
-
-            // Check if error count exceeds 10
-            if (errors >= 10) {
-                alert("Sorry, you exceeded 10 errors. Restarting the game.");
-                initializeGame(); // Reset the game after too many errors
-            }
-        }
-    }
-}
-
-// Function to check if the board is complete
-function isBoardComplete() {
-    for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
-            if (board[r][c] == "-") {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-// Function to generate a random Sudoku grid
-function generateRandomSudoku(emptyPercentage) {
+function generateRandomSudoku() {
     const grid = [];
+    const emptyPercentage = 20; // Adjust this to change the percentage of empty cells
 
     // Initialize the grid with empty cells
     for (let i = 0; i < 9; i++) {
@@ -220,10 +106,10 @@ function generateRandomSudoku(emptyPercentage) {
 
     // Convert unsolved grid to the specified format
     const unsolvedGrid = createUnsolvedGrid();
-    const unsolvedBoard = unsolvedGrid.map(row => row.map(cell => cell === 0 ? "-" : cell.toString()));
+    const unsolvedBoard = unsolvedGrid.map(row => row.map(cell => cell === 0 ? "-" : cell.toString()).join(""));
 
     // Convert solved grid to the specified format
-    const solvedBoard = solvedGrid.map(row => row.map(cell => cell.toString()));
+    const solvedBoard = solvedGrid.map(row => row.map(cell => cell.toString()).join(""));
 
     return {
         solved: solvedBoard,
@@ -231,7 +117,71 @@ function generateRandomSudoku(emptyPercentage) {
     };
 }
 
-// Initialize game on page load
+function setGame() {
+    // Generate Sudoku boards
+    const { solved, unsolved } = generateRandomSudoku();
+    board = unsolved; // Save the unsolved board globally
+    solution = solved; // Save the solved board globally
+
+    // Digits 1-9
+    for (let i = 1; i <= 9; i++) {
+        let number = document.createElement("div");
+        number.id = i.toString();
+        number.innerText = i.toString();
+        number.addEventListener("click", selectNumber);
+        number.classList.add("number");
+        document.getElementById("digits").appendChild(number);
+    }
+
+    // Board 9x9
+    for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+            let tile = document.createElement("div");
+            tile.id = r.toString() + "-" + c.toString();
+            if (board[r][c] !== "-") {
+                tile.innerText = board[r][c];
+                tile.classList.add("tile-start");
+            }
+            if (r === 2 || r === 5) {
+                tile.classList.add("horizontal-line");
+            }
+            if (c === 2 || c === 5) {
+                tile.classList.add("vertical-line");
+            }
+            tile.addEventListener("click", selectTile);
+            tile.classList.add("tile");
+            document.getElementById("board").appendChild(tile);
+        }
+    }
+}
+
+function selectNumber() {
+    if (numSelected !== null) {
+        numSelected.classList.remove("number-selected");
+    }
+    numSelected = this;
+    numSelected.classList.add("number-selected");
+}
+
+function selectTile() {
+    if (numSelected) {
+        if (this.innerText !== "") {
+            return;
+        }
+
+        let coords = this.id.split("-");
+        let r = parseInt(coords[0]);
+        let c = parseInt(coords[1]);
+
+        if (solution[r][c] === numSelected.id) {
+            this.innerText = numSelected.id;
+        } else {
+            errors += 1;
+            document.getElementById("errors").innerText = errors;
+        }
+    }
+}
+
 window.onload = function() {
-    initializeGame(); // Default to easy difficulty on page load
+    setGame();
 };

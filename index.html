@@ -1,21 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sudoku Game</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Sudoku Game</h1>
-        <div class="board">
-            <!-- Grid cells will be generated dynamically using JavaScript -->
-        </div>
-        <button onclick="generateSudoku()">Generate New Game</button>
-        <button onclick="checkSolution()">Check Solution</button>
-    </div>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width initial-scale=1.0 user-scalable=no">
+        <title>Sudoku</title>
 
-    <script src="script.js"></script>
-</body>
+        <link rel="stylesheet" href="styles.css">
+        <script src="script.js"></script>
+    </head>
+
+    <body>
+        <h1>Sudoku</h1>
+        <hr>
+        <h2 id="errors">0</h2>
+
+        <!-- 9x9 board -->
+        <div id="board"></div>
+        <br>
+        <div id="digits">
+        </div>
+
+    </body>
+
+
 </html>

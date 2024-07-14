@@ -1,4 +1,6 @@
-// return true if board get solved otherwise false
+// function.js
+
+// Return true if board is solved, otherwise false
 function solved(board) {
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
@@ -10,37 +12,35 @@ function solved(board) {
   return true;
 }
 
-// get all the possibile board
+// Get all the possible boards
 function nextBoards(board) {
   const res = [];
   const firstEmpty = findEmptySquare(board);
-  if (firstEmpty != undefined) {
+  if (firstEmpty !== undefined) {
     const y = firstEmpty[0];
     const x = firstEmpty[1];
 
     for (let i = 1; i <= 9; i++) {
-      var newBoard = [...board];
-      var row = [...newBoard[y]];
-      row[x] = i;
-      newBoard[y] = row;
+      var newBoard = board.map(row => row.slice()); // Deep copy of the board
+      newBoard[y][x] = i;
       res.push(newBoard);
     }
   }
   return res;
 }
 
-// search for empty square
+// Search for empty square
 function findEmptySquare(board) {
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
-      if (board[i][j] == 0) {
+      if (board[i][j] === 0) {
         return [i, j];
       }
     }
   }
 }
 
-// filter validate board only
+// Filter valid boards only
 function keepOnlyValid(boards) {
   return boards.filter((b) => validBoard(b));
 }
@@ -49,14 +49,14 @@ function validBoard(board) {
   return rowGood(board) && columnGood(board) && boxesGood(board);
 }
 
-// check whether board is valid from row
+// Check whether board is valid from row
 function rowGood(board) {
   for (let i = 0; i < 9; i++) {
     const cur = [];
     for (let j = 0; j < 9; j++) {
       if (cur.includes(board[i][j])) {
         return false;
-      } else if (board[i][j] != 0) {
+      } else if (board[i][j] !== 0) {
         cur.push(board[i][j]);
       }
     }
@@ -64,14 +64,14 @@ function rowGood(board) {
   return true;
 }
 
-// check whether board is valid from column
+// Check whether board is valid from column
 function columnGood(board) {
   for (let i = 0; i < 9; i++) {
     const cur = [];
     for (let j = 0; j < 9; j++) {
       if (cur.includes(board[j][i])) {
         return false;
-      } else if (board[j][i] != 0) {
+      } else if (board[j][i] !== 0) {
         cur.push(board[j][i]);
       }
     }
@@ -79,19 +79,12 @@ function columnGood(board) {
   return true;
 }
 
-// check whether board is valid from subgrid of size 3×3
+// Check whether board is valid from subgrid of size 3×3
 function boxesGood(board) {
-  // represent first size 3×3  box out of nine
   const boxCoordinates = [
-    [0, 0],
-    [0, 1],
-    [0, 2],
-    [1, 0],
-    [1, 1],
-    [1, 2],
-    [2, 0],
-    [2, 1],
-    [2, 2],
+    [0, 0], [0, 1], [0, 2],
+    [1, 0], [1, 1], [1, 2],
+    [2, 0], [2, 1], [2, 2]
   ];
 
   for (let y = 0; y < 9; y += 3) {
@@ -104,7 +97,7 @@ function boxesGood(board) {
 
         if (cur.includes(board[coordinates[0]][coordinates[1]])) {
           return false;
-        } else if (board[coordinates[0]][coordinates[1]] != 0) {
+        } else if (board[coordinates[0]][coordinates[1]] !== 0) {
           cur.push(board[coordinates[0]][coordinates[1]]);
         }
       }
@@ -113,29 +106,23 @@ function boxesGood(board) {
   return true;
 }
 
-// backtracking logic
+// Backtracking logic
 function searchForSolution(boards) {
   if (boards.length < 1) {
     return false;
   } else {
-    // backtracking search
     var first = boards.shift();
-    const tryPath = getSolved(first);
-    if (tryPath != false) {
-      return tryPath;
+    const tryPath = nextBoards(first);
+    const validPath = keepOnlyValid(tryPath);
+    if (solved(first)) {
+      return first;
     } else {
-      return searchForSolution(boards);
+      return searchForSolution(boards.concat(validPath));
     }
   }
 }
 
-// solve board
+// Solve the board using backtracking
 function getSolved(board) {
-  if (solved(board)) {
-    return board;
-  } else {
-    const possibilities = nextBoards(board);
-    const validBoards = keepOnlyValid(possibilities);
-    return searchForSolution(validBoards);
-  }
+  return searchForSolution([board]);
 }

@@ -5,6 +5,7 @@ var errors = 0;
 
 // Generate random Sudoku board and solution
 var { board, solution } = generateRandomSudoku();
+solveSudoku(solution); 
 
 window.onload = function() {
     setGame();
@@ -71,9 +72,6 @@ function generateRandomSudoku() {
             }
         }
     }
-
-    // Solve the Sudoku grid to get the solution
-    solveSudoku(solution);
 
     return { board: grid, solution: solution };
 }

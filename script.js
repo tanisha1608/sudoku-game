@@ -1,17 +1,128 @@
 var numSelected = null;
 var tileSelected = null;
-
 var errors = 0;
+var board = null;
+var solution = null;
 
-// Generate random Sudoku board and solution
-var { board, solution } = generateRandomSudoku();
-solveSudoku(solution); 
+function generateRandomSudoku() {
+    const grid = [];
+    const emptyPercentage = 20; // Adjust this to change the percentage of empty cells
 
-window.onload = function() {
-    setGame();
+    // Initialize the grid with empty cells
+    for (let i = 0; i < 9; i++) {
+        grid.push([]);
+        for (let j = 0; j < 9; j++) {
+            grid[i].push(0); // 0 represents an empty cell
+        }
+    }
+
+    // Function to check if placing 'num' at grid[row][col] is valid
+    function isValid(row, col, num) {
+        // Check the row
+        for (let i = 0; i < 9; i++) {
+            if (grid[row][i] === num) {
+                return false;
+            }
+        }
+
+        // Check the column
+        for (let i = 0; i < 9; i++) {
+            if (grid[i][col] === num) {
+                return false;
+            }
+        }
+
+        // Check the 3x3 box
+        const boxStartRow = Math.floor(row / 3) * 3;
+        const boxStartCol = Math.floor(col / 3) * 3;
+        for (let i = boxStartRow; i < boxStartRow + 3; i++) {
+            for (let j = boxStartCol; j < boxStartCol + 3; j++) {
+                if (grid[i][j] === num) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // Function to recursively fill the Sudoku grid using backtracking
+    function fillGrid(row, col) {
+        if (row === 9) {
+            return true; // Entire grid filled successfully
+        }
+
+        let nextRow = row;
+        let nextCol = col + 1;
+        if (nextCol === 9) {
+            nextRow++;
+            nextCol = 0;
+        }
+
+        // Shuffle numbers 1-9 randomly
+        const numbers = Array.from({ length: 9 }, (_, index) => index + 1);
+        numbers.sort(() => Math.random() - 0.5);
+
+        for (let num of numbers) {
+            if (isValid(row, col, num)) {
+                grid[row][col] = num;
+                if (fillGrid(nextRow, nextCol)) {
+                    return true;
+                }
+                grid[row][col] = 0; // Backtrack
+            }
+        }
+
+        return false; // No valid number found
+    }
+
+    // Start filling the grid from the top-left corner (0, 0)
+    fillGrid(0, 0);
+
+    // Deep copy of the solved grid for storing the solved board
+    const solvedGrid = JSON.parse(JSON.stringify(grid));
+
+    // Function to remove numbers from the solved grid to create an unsolved version
+    function createUnsolvedGrid() {
+        const unsolvedGrid = JSON.parse(JSON.stringify(solvedGrid)); // Start with a copy of the solved grid
+
+        // Determine number of cells to empty based on emptyPercentage
+        const totalCells = 81;
+        const emptyCells = Math.floor((emptyPercentage / 100) * totalCells);
+
+        // Generate random indices to empty cells
+        let cellsToRemove = 0;
+        while (cellsToRemove < emptyCells) {
+            const row = Math.floor(Math.random() * 9);
+            const col = Math.floor(Math.random() * 9);
+            if (unsolvedGrid[row][col] !== 0) {
+                unsolvedGrid[row][col] = 0;
+                cellsToRemove++;
+            }
+        }
+
+        return unsolvedGrid;
+    }
+
+    // Convert unsolved grid to the specified format
+    const unsolvedGrid = createUnsolvedGrid();
+    const unsolvedBoard = unsolvedGrid.map(row => row.map(cell => cell === 0 ? "-" : cell.toString()).join(""));
+
+    // Convert solved grid to the specified format
+    const solvedBoard = solvedGrid.map(row => row.map(cell => cell.toString()).join(""));
+
+    return {
+        solved: solvedBoard,
+        unsolved: unsolvedBoard
+    };
 }
 
 function setGame() {
+    // Generate Sudoku boards
+    const { solved, unsolved } = generateRandomSudoku();
+    board = unsolved; // Save the unsolved board globally
+    solution = solved; // Save the solved board globally
+
     // Digits 1-9
     for (let i = 1; i <= 9; i++) {
         let number = document.createElement("div");
@@ -27,8 +138,8 @@ function setGame() {
         for (let c = 0; c < 9; c++) {
             let tile = document.createElement("div");
             tile.id = r.toString() + "-" + c.toString();
-            if (board[r][c] !== 0) {
-                tile.innerText = board[r][c].toString();
+            if (board[r][c] !== "-") {
+                tile.innerText = board[r][c];
                 tile.classList.add("tile-start");
             }
             if (r === 2 || r === 5) {
@@ -39,70 +150,9 @@ function setGame() {
             }
             tile.addEventListener("click", selectTile);
             tile.classList.add("tile");
-            document.getElementById("board").append(tile);
+            document.getElementById("board").appendChild(tile);
         }
     }
-}
-
-function generateRandomSudoku() {
-    const grid = [];
-    const solution = [];
-    const emptyPercentage = 50; // Adjust this to change the percentage of empty cells
-
-    // Initialize the grid with empty cells
-    for (let i = 0; i < 9; i++) {
-        grid.push([]);
-        solution.push([]);
-        for (let j = 0; j < 9; j++) {
-            grid[i].push(0); // 0 represents an empty cell
-            solution[i].push(0); // 0 represents an empty cell for solution
-        }
-    }
-
-    // Fill the grid with random numbers that satisfy Sudoku rules
-    for (let i = 0; i < 9; i++) {
-        for (let j = 0; j < 9; j++) {
-            if (Math.random() * 100 <= (100 - emptyPercentage)) {
-                let num;
-                do {
-                    num = Math.floor(Math.random() * 9) + 1;
-                } while (!isValid(grid, i, j, num));
-                grid[i][j] = num;
-                solution[i][j] = num; // Initially, solution is the same as grid
-            }
-        }
-    }
-
-    return { board: grid, solution: solution };
-}
-
-function isValid(grid, row, col, num) {
-    // Check row
-    for (let i = 0; i < 9; i++) {
-        if (grid[row][i] === num) {
-            return false;
-        }
-    }
-
-    // Check column
-    for (let i = 0; i < 9; i++) {
-        if (grid[i][col] === num) {
-            return false;
-        }
-    }
-
-    // Check 3x3 box
-    const startRow = Math.floor(row / 3) * 3;
-    const startCol = Math.floor(col / 3) * 3;
-    for (let i = startRow; i < startRow + 3; i++) {
-        for (let j = startCol; j < startCol + 3; j++) {
-            if (grid[i][j] === num) {
-                return false;
-            }
-        }
-    }
-
-    return true;
 }
 
 function selectNumber() {
@@ -123,11 +173,8 @@ function selectTile() {
         let r = parseInt(coords[0]);
         let c = parseInt(coords[1]);
 
-        if (solution[r][c] === parseInt(numSelected.id)) {
+        if (solution[r][c] === numSelected.id) {
             this.innerText = numSelected.id;
-            if (checkSolution()) {
-                alert("Congratulations! You solved the Sudoku.");
-            }
         } else {
             errors += 1;
             document.getElementById("errors").innerText = errors;
@@ -135,61 +182,6 @@ function selectTile() {
     }
 }
 
-function checkSolution() {
-    let currentBoard = getCurrentBoard();
-    return compareArrays(currentBoard, solution);
-}
-
-function getCurrentBoard() {
-    let currentBoard = [];
-    for (let r = 0; r < 9; r++) {
-        currentBoard.push([]);
-        for (let c = 0; c < 9; c++) {
-            let tile = document.getElementById(r.toString() + "-" + c.toString());
-            currentBoard[r].push(tile.innerText === "" ? 0 : parseInt(tile.innerText));
-        }
-    }
-    return currentBoard;
-}
-
-function compareArrays(arr1, arr2) {
-    for (let i = 0; i < 9; i++) {
-        for (let j = 0; j < 9; j++) {
-            if (arr1[i][j] !== arr2[i][j]) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-function solveSudoku(board) {
-    let emptySpot = findEmptySpot(board);
-    if (!emptySpot) {
-        return true; // No empty spots left, solution found
-    }
-
-    let [row, col] = emptySpot;
-    for (let num = 1; num <= 9; num++) {
-        if (isValid(board, row, col, num)) {
-            board[row][col] = num;
-            if (solveSudoku(board)) {
-                return true;
-            }
-            board[row][col] = 0; // Backtrack
-        }
-    }
-
-    return false; // No valid number found, backtrack
-}
-
-function findEmptySpot(board) {
-    for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
-            if (board[r][c] === 0) {
-                return [r, c];
-            }
-        }
-    }
-    return null; // No empty spots left
-}
+window.onload = function() {
+    setGame();
+};

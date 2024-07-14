@@ -1,72 +1,41 @@
-// sudoku.js
+// Wait for the DOM to be fully loaded
+document.addEventListener("DOMContentLoaded", function () {
+    const cells = document.querySelectorAll(".grid-cell");
 
-let gameLevel = "easy"; // Default mode
-let button = document.getElementById("generate-sudoku");
-let solve = document.getElementById("solve");
-let dropdown = document.getElementById("dropdown");
-let arr = [[], [], [], [], [], [], [], [], []];
-let board = [[], [], [], [], [], [], [], [], []];
+    // Function to generate a random Sudoku board
+    function generateRandomSudoku() {
+        let nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        nums = shuffle(nums); // Shuffle the numbers array for randomness
 
-// Assigning divs to an array
-for (let i = 0; i < 9; i++) {
-  for (let j = 0; j < 9; j++) {
-    arr[i][j] = document.getElementById(i * 9 + j);
-  }
-}
+        // Reset all cells to empty
+        cells.forEach(cell => {
+            cell.textContent = "";
+        });
 
-// Setting color for the default numbers
-function setColor(board) {
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 9; j++) {
-      if (board[i][j] !== 0) {
-        arr[i][j].style.color = "red";
-      }
+        // Fill the Sudoku board with random numbers
+        let index = 0;
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                const num = nums[index % 9];
+                cells[row * 9 + col].textContent = num;
+                index++;
+            }
+            nums = nums.slice(3).concat(nums.slice(0, 3)); // Rotate nums array for next row
+        }
     }
-  }
-}
 
-// Reset color for all cells
-function resetColor() {
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 9; j++) {
-      arr[i][j].style.color = "green";
+    // Function to shuffle an array (Fisher-Yates shuffle)
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
     }
-  }
-}
 
-// Update board display based on provided board state
-function changeBoard(board) {
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 9; j++) {
-      if (board[i][j] !== 0) {
-        arr[i][j].innerText = board[i][j];
-      } else {
-        arr[i][j].innerText = "";
-      }
-    }
-  }
-}
+    // Event listeners for buttons
+    document.getElementById("generate-sudoku").addEventListener("click", generateRandomSudoku);
 
-// Request a new Sudoku board from the API based on selected difficulty
-button.onclick = function () {
-  var xhrRequest = new XMLHttpRequest();
-  xhrRequest.onload = function () {
-    var response = JSON.parse(xhrRequest.response);
-    resetColor();
-    board = response.board;
-    setColor(board);
-    changeBoard(board);
-  };
-  xhrRequest.open(
-    "get",
-    `https://sugoku.herokuapp.com/board?difficulty=${gameLevel}`
-  );
-  xhrRequest.send();
-};
-
-// Solve the Sudoku puzzle
-solve.onclick = function () {
-  resetColor();
-  const solvedBoard = getSolved(board);
-  changeBoard(solvedBoard);
-};
+    // Initial generation of Sudoku board on page load
+    generateRandomSudoku();
+});

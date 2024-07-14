@@ -1,8 +1,8 @@
 // Constants for difficulty levels
 const difficulties = {
-    easy: { emptyPercentage: 20 },
-    medium: { emptyPercentage: 35 },
-    hard: { emptyPercentage: 50 }
+  
+    emptyPercentage: 35 
+  
 };
 
 // Variables to store current game state
